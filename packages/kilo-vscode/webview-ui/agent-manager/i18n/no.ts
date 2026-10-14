@@ -546,5 +546,6 @@ export const dict = {
   "agentManager.dialog.council": "Råd",
   "agentManager.dialog.council.tooltip": "Modellene gjennomgår uavhengig og kryssjekker deretter hverandres funn",
   "agentManager.dialog.council.hint":
-    "Hvert medlem får et skrivebeskyttet worktree. Modellen i ledetekstfeltet leder rådet og skriver rapporten.",
+    "Hvert medlem jobber i sitt eget worktree og kan ikke endre koden som gjennomgås. Modellen i ledetekstfeltet leder rådet og skriver rapporten.",
+  "agentManager.dialog.council.target": "Commit eller gren som skal gjennomgås (valgfritt)",
 }

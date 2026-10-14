@@ -5,6 +5,8 @@
  * the chair in the final report prompt and nowhere else.
  */
 
+import { SCRATCH } from "./rules"
+
 export interface Report {
   label: string
   text: string
@@ -24,19 +26,40 @@ const FINDING = [
   "Confidence: high|medium",
 ].join("\n")
 
+/** The code under review, when the user named a commit or branch. */
+export interface Target {
+  name: string
+  commit: string
+}
+
+const WORKSPACE = [
+  "Your workspace:",
+  "- You work in your own git worktree. Do not change the code under review.",
+  `- You may create scratch files, for example a small fixture or test, but only under \`${SCRATCH}/\` in your worktree.`,
+  "- Read-only git commands (git show, git diff, git log, git status, git blame) and gh pr view/diff run without asking. Other commands, such as running tests, ask the user for permission first, and so do chained commands (pipes, `;`, `&&`, redirects). Run one command at a time, and only when it settles a question.",
+  "- Judge findings against the project's own conventions: read its AGENTS.md (and CONTRIBUTING or similar, if present) before calling something a problem.",
+].join("\n")
+
 export function labels(count: number): string[] {
   return Array.from({ length: count }, (_, index) => String.fromCharCode(65 + index))
 }
 
-export function independent(label: string, task: string): string {
+export function independent(label: string, task: string, target?: Target): string {
   return [
     `You are council member ${label} in a model council. Several models work on the task below independently. Afterwards you will see everyone's findings, without names, and cross-check them.`,
     "",
     "Task from the user:",
     task,
     "",
+    ...(target
+      ? [
+          `The files in your worktree are checked out at ${target.name} (commit ${target.commit}). That is the code under review; \`git show ${target.commit}\` shows its last change.`,
+          "",
+        ]
+      : []),
+    WORKSPACE,
+    "",
     "Rules:",
-    "- You are read-only. Inspect code by reading and searching files and with read-only git commands (git show, git diff, git log, git status, gh pr diff, gh pr view). Do not try to edit anything.",
     "- Work alone and be thorough. Report every real problem, including ones you are only fairly sure about; mark those `medium`. Skip pure style preferences.",
     "- Before reporting, check the surrounding code: callers, types and tests.",
     "",
@@ -47,6 +70,31 @@ export function independent(label: string, task: string): string {
     'If you find nothing, write "No findings" and say what you checked.',
   ].join("\n")
 }
+
+/** True when a round 1 reply ends with the findings the council can merge. */
+export function reported(label: string, text: string): boolean {
+  return text.includes(`### ${label}1`) || /no findings/i.test(text)
+}
+
+/** True when a cross-examination reply answers findings by ID. */
+export function answered(text: string): boolean {
+  return /^\s*\**F\d+\**\s*:/m.test(text)
+}
+
+/** True when the chair's merged list holds at least one finding. */
+export function listed(merged: string): boolean {
+  return /^### F\d+/m.test(merged)
+}
+
+export function retry(reason: string): string {
+  return [
+    `Your previous turn stopped early (${reason}).`,
+    "Continue the task where you left off, and end your reply with the required section in exactly the format you were given.",
+  ].join(" ")
+}
+
+export const REFORMAT =
+  "Your reply is missing the required section at the end. Finish the task and end your reply with it, in exactly the format you were given."
 
 export function merge(task: string, reports: Report[], missing: string[]): string {
   return [
@@ -90,13 +138,14 @@ export function cross(label: string, merged: string): string {
     "",
     "Rules:",
     "- Check the code yourself before answering. Do not confirm a finding because others raised it, and do not dispute it because others did.",
-    "- dispute needs concrete evidence from the code that the problem does not exist or does not matter. Quote the code.",
+    "- A finding that contradicts the project's own conventions (AGENTS.md and similar) is not a problem: dispute it and quote the convention.",
+    "- dispute needs concrete evidence from the code or the conventions that the problem does not exist or does not matter. Quote it.",
     "- confirm needs one line saying what you checked.",
     "- unsure is fine when you cannot verify it.",
     '- For findings you raised: confirm them, or withdraw one with "F<k>: withdraw - <reason>".',
     "",
     `Then list any NEW finding that the others' findings made you notice, in the same shape as before, continuing your own numbering (${label}…). Write "No new findings" if there are none.`,
-    "You are still read-only.",
+    `The workspace rules from your first task still apply: do not change the code under review; scratch files only under \`${SCRATCH}/\`.`,
   ].join("\n")
 }
 

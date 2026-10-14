@@ -538,5 +538,6 @@ export const dict = {
   "agentManager.dialog.council": "สภา",
   "agentManager.dialog.council.tooltip": "โมเดลตรวจสอบอย่างอิสระ แล้วตรวจทานข้อค้นพบของกันและกัน",
   "agentManager.dialog.council.hint":
-    "สมาชิกแต่ละคนได้รับ Worktree แบบอ่านอย่างเดียว โมเดลในช่องพรอมต์เป็นประธานสภาและเขียนรายงาน",
+    "สมาชิกแต่ละคนทำงานใน Worktree ของตนเองและแก้ไขโค้ดที่กำลังตรวจสอบไม่ได้ โมเดลในช่องพรอมต์เป็นประธานสภาและเขียนรายงาน",
+  "agentManager.dialog.council.target": "คอมมิตหรือบรานช์ที่จะตรวจสอบ (ไม่บังคับ)",
 }

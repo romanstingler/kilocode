@@ -557,5 +557,6 @@ export const dict = {
   "agentManager.dialog.council": "Rat",
   "agentManager.dialog.council.tooltip": "Modelle prüfen unabhängig und kontrollieren dann gegenseitig ihre Befunde",
   "agentManager.dialog.council.hint":
-    "Jedes Mitglied erhält einen schreibgeschützten Worktree. Das Modell im Eingabefeld leitet den Rat und schreibt den Bericht.",
+    "Jedes Mitglied arbeitet in einem eigenen Worktree und kann den geprüften Code nicht ändern. Das Modell im Eingabefeld leitet den Rat und schreibt den Bericht.",
+  "agentManager.dialog.council.target": "Zu prüfender Commit oder Branch (optional)",
 }

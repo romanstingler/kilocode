@@ -1103,7 +1103,8 @@ export interface CreateMultiVersionRequest {
   // reconciled to this state. Only sent when sandbox controls are available.
   sandbox?: boolean
   // When set, the allocated versions run as a model council with this chair.
-  council?: { chair: ModelSelection & { variant?: string } }
+  // `target` is the commit or branch the member worktrees start from.
+  council?: { chair: ModelSelection & { variant?: string }; target?: string }
 }
 
 // Persist tab order for a context (worktree ID or "local")

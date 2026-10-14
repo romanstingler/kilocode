@@ -556,5 +556,6 @@ export const dict = {
   "agentManager.dialog.council.tooltip":
     "Modeller bağımsız olarak inceler, ardından birbirlerinin bulgularını çapraz kontrol eder",
   "agentManager.dialog.council.hint":
-    "Her üye salt okunur bir worktree alır. İstem kutusundaki model konseye başkanlık eder ve raporu yazar.",
+    "Her üye kendi worktree'sinde çalışır ve incelenen kodu değiştiremez. İstem kutusundaki model konseye başkanlık eder ve raporu yazar.",
+  "agentManager.dialog.council.target": "İncelenecek commit veya dal (isteğe bağlı)",
 }

@@ -204,6 +204,8 @@ export const NewWorktreeDialog: Component<{
   const [compareMode, setCompareMode] = createSignal(false)
   // Council mode reuses the compare picker for members; the prompt's model chip picks the chair.
   const [councilMode, setCouncilMode] = createSignal(false)
+  // Commit or branch the council members review; their worktrees start there.
+  const [target, setTarget] = createSignal("")
   const initialAgent = restoreAgent(saved.agent, session.agents(), session.selectedAgent())
   const preferences = createDialogPreferences({
     saved,
@@ -456,7 +458,9 @@ export const NewWorktreeDialog: Component<{
   const compareTitle = () => (councilMode() ? t("agentManager.dialog.council") : t("agentManager.dialog.compareModels"))
   const councilRequest = () => {
     const chair = councilMode() ? model() : null
-    return chair ? { chair: { ...chair, variant: effectiveVariant() } } : undefined
+    return chair
+      ? { chair: { ...chair, variant: effectiveVariant() }, target: target().trim() || undefined }
+      : undefined
   }
 
   /**
@@ -1313,6 +1317,12 @@ export const NewWorktreeDialog: Component<{
                 </div>
                 <Show when={councilMode()}>
                   <span class="am-nv-version-hint">{t("agentManager.dialog.council.hint")}</span>
+                  <input
+                    class="am-nv-name-input"
+                    placeholder={t("agentManager.dialog.council.target")}
+                    value={target()}
+                    onInput={(e) => setTarget(e.currentTarget.value)}
+                  />
                 </Show>
                 <DeferredPopover
                   open={compareOpen()}

@@ -548,5 +548,6 @@ export const dict = {
   "agentManager.dialog.council": "Rada",
   "agentManager.dialog.council.tooltip": "Modele przeglądają niezależnie, a potem wzajemnie weryfikują swoje ustalenia",
   "agentManager.dialog.council.hint":
-    "Każdy członek dostaje worktree tylko do odczytu. Model z pola promptu przewodniczy radzie i pisze raport.",
+    "Każdy członek pracuje we własnym worktree i nie może zmieniać przeglądanego kodu. Model z pola promptu przewodniczy radzie i pisze raport.",
+  "agentManager.dialog.council.target": "Commit lub gałąź do przeglądu (opcjonalnie)",
 }

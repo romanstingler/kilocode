@@ -528,5 +528,7 @@ export const dict = {
   "agentManager.error.title": "Agent Manager 错误",
   "agentManager.dialog.council": "评审会",
   "agentManager.dialog.council.tooltip": "各模型独立评审，然后交叉核验彼此的发现",
-  "agentManager.dialog.council.hint": "每个成员获得一个只读工作树。提示框中的模型担任主席并撰写报告。",
+  "agentManager.dialog.council.hint":
+    "每个成员在自己的工作树中工作，不能修改被评审的代码。提示框中的模型担任主席并撰写报告。",
+  "agentManager.dialog.council.target": "要评审的提交或分支（可选）",
 }

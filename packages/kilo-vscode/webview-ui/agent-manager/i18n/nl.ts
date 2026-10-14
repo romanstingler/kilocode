@@ -555,5 +555,6 @@ export const dict = {
   "agentManager.dialog.council": "Raad",
   "agentManager.dialog.council.tooltip": "Modellen beoordelen onafhankelijk en controleren daarna elkaars bevindingen",
   "agentManager.dialog.council.hint":
-    "Elk lid krijgt een alleen-lezen worktree. Het model in het promptvak zit de raad voor en schrijft het rapport.",
+    "Elk lid werkt in een eigen worktree en kan de beoordeelde code niet wijzigen. Het model in het promptvak zit de raad voor en schrijft het rapport.",
+  "agentManager.dialog.council.target": "Te beoordelen commit of branch (optioneel)",
 }

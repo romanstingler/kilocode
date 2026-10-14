@@ -10,7 +10,7 @@ import { plan } from "./creation-plan"
 import { Timing } from "./creation-timing"
 import { Semaphore } from "./semaphore"
 import type { WorktreeCreationFailure } from "./worktree-create"
-import { councilReady, seatCouncil } from "./council/start"
+import { prepareCouncil, seatCouncil } from "./council/start"
 
 const PROVISION_CONCURRENCY = 2
 
@@ -37,7 +37,8 @@ export async function createMultiVersion(
 ): Promise<null> {
   const text = msg.text?.trim() || undefined
   const council = msg.council
-  if (!councilReady(host, msg)) return null
+  const setup = await prepareCouncil(ctx, host, msg)
+  if (!setup) return null
 
   const worktreeName = msg.name?.trim() || undefined
   const agent = msg.agent
@@ -82,6 +83,7 @@ export async function createMultiVersion(
     providerID,
     modelID,
     sandbox: msg.sandbox,
+    baseRef: setup.ref,
   }))
   const prepared: PreparedVersion[] = []
   for (const spec of specs) {
@@ -144,7 +146,7 @@ export async function createMultiVersion(
   }
 
   host.log(`Multi-version creation complete: ${created.length}/${versions} versions`)
-  seatCouncil(ctx, host, msg, created, models)
+  seatCouncil(ctx, host, msg, created, models, setup)
   return null
 }
 
@@ -159,6 +161,8 @@ interface VersionSpec {
   providerID: string | undefined
   modelID: string | undefined
   sandbox: boolean | undefined
+  /** Exact commit to start from, e.g. the commit a council reviews. */
+  baseRef: string | undefined
 }
 
 interface PreparedVersion {
@@ -180,6 +184,7 @@ async function prepareVersion(
   const wt = await host.createOnDisk({
     groupId: spec.groupId,
     baseBranch: spec.baseBranch,
+    baseRef: spec.baseRef,
     branchName: branch,
     name: version.branch,
     label: version.label,

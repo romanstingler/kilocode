@@ -548,5 +548,6 @@ export const dict = {
   "agentManager.dialog.council": "Council",
   "agentManager.dialog.council.tooltip": "Models review independently, then cross-check each other's findings",
   "agentManager.dialog.council.hint":
-    "Each member gets a read-only worktree. The model in the prompt box chairs the council and writes the report.",
+    "Each member works in its own worktree and cannot change the code under review. The model in the prompt box chairs the council and writes the report.",
+  "agentManager.dialog.council.target": "Commit or branch to review (optional)",
 }

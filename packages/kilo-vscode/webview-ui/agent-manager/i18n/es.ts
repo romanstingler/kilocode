@@ -556,5 +556,6 @@ export const dict = {
   "agentManager.dialog.council.tooltip":
     "Los modelos revisan de forma independiente y luego verifican los hallazgos de los demás",
   "agentManager.dialog.council.hint":
-    "Cada miembro recibe un worktree de solo lectura. El modelo del cuadro de prompt preside el consejo y redacta el informe.",
+    "Cada miembro trabaja en su propio worktree y no puede cambiar el código en revisión. El modelo del cuadro de prompt preside el consejo y redacta el informe.",
+  "agentManager.dialog.council.target": "Commit o rama a revisar (opcional)",
 }

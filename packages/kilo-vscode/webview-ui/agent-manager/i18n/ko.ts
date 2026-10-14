@@ -541,5 +541,6 @@ export const dict = {
   "agentManager.dialog.council": "위원회",
   "agentManager.dialog.council.tooltip": "모델들이 독립적으로 검토한 뒤 서로의 발견 사항을 교차 검증합니다",
   "agentManager.dialog.council.hint":
-    "각 멤버는 읽기 전용 워크트리를 받습니다. 프롬프트 상자의 모델이 위원회를 주재하고 보고서를 작성합니다.",
+    "각 멤버는 자신의 워크트리에서 작업하며 검토 대상 코드를 변경할 수 없습니다. 프롬프트 상자의 모델이 위원회를 주재하고 보고서를 작성합니다.",
+  "agentManager.dialog.council.target": "검토할 커밋 또는 브랜치(선택 사항)",
 }

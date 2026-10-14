@@ -1,6 +1,6 @@
 # Model Council
 
-**Status:** In progress, step 2 of the iteration plan below. Developed on `romanstingler/kilocode`, branch `llm-council`.
+**Status:** In progress, step 3 of the iteration plan below. Developed on `romanstingler/kilocode`, branch `llm-council`.
 
 Several models work on the same task independently, check each other's work in rounds, and converge on one result. Disagreements that survive the rounds are reported, not hidden. The council then asks the user whether to build the result.
 
@@ -66,7 +66,7 @@ A `/council` command whose chair session drove the members through the `agent_ma
 - **Mechanics failed:** in `local` mode the tool ignores the task `name` (`tool-start.ts` creates the session without a title), so the chair couldn't match sessions to members. One member was stuck in provider retry (free model). The chair then called an `agent_manager` action that doesn't exist.
 - **Lesson:** the extension host already has what an LLM chair lacked: direct session creation with a model and agent, session status, and message reads. Orchestration belongs in host code. The command file was removed.
 
-### Step 2: council in the New Worktree dialog (current)
+### Step 2: council in the New Worktree dialog (done)
 
 **UI.** A **Council** button next to Compare Models. It opens the same model picker for the members (2 to 4) and keeps the prompt's model chip visible: that model chairs the council. The prompt box holds the task, for example `review commit e48c9785c7`.
 
@@ -74,7 +74,7 @@ A `/council` command whose chair session drove the members through the `agent_ma
 
 1. The members are created through the Compare Models path, one worktree each, shown as one group. Their worktrees are relabelled `Council A`, `Council B`, … and auto-naming is turned off for them.
 2. The chair opens as a local session titled `Council: <task>`.
-3. Round 1: each member gets the task with the council rules, in its own session, on the `ask` agent. `ask` denies edits and allows read-only shell commands (`git show`, `git diff`, `git log`, `gh pr diff`) without permission prompts, so members fetch the change themselves.
+3. Round 1: each member gets the task with the council rules, in its own session. (Step 2 used the read-only `ask` agent; step 3 replaced it.)
 4. The host polls session status and reads each member's finished reply.
 5. The chair merges the reports into one list (F1, F2, …) with anonymous authors.
 6. Cross-examination: each member answers every finding in its own session (confirm, dispute, unsure, withdraw) and may add new ones.
@@ -86,23 +86,44 @@ Members that fail are left out and named in the merge and report prompts. A fail
 
 **Code.** `council/prompts.ts` (prompt builders), `council/run.ts` (orchestration and turn completion), `council/start.ts` (validation, worktree labels, chair session), wired in `provider-multi-version.ts`. The dialog sends `council: { chair }` on the existing `agentManager.createMultiVersion` message, so `AgentManagerProvider.ts` (at its line cap) is unchanged. Tests: `tests/unit/council.test.ts`.
 
-### Step 3: decision and build
+**Outcome (2026-10-14).** Run on commit `e48c9785c7` with four small free models. The report confirmed two cosmetic findings, one of them a false positive ("avoid `.at()`", which the project's AGENTS.md requires), and lost the one real problem: member C found that `find` and `grep` still bypass `.gitignore`, which the follow-up commit `17448f5c50` fixes. Causes:
+
+- C hit a provider rate limit (429); the turn ended with an error and the council dropped C at once. The user resumed C, but nothing was watching it.
+- D's model never replied; the council moved on without D, and the per-member reason was not logged.
+- Member worktrees started from the current branch, which already contained the follow-up fix, so three members reviewed newer code than the commit.
+- The read-only `ask` agent blocked C's attempt to verify its finding with a small fixture; C spent about 20 minutes fighting the sandbox.
+- Members confirmed a finding that contradicts the project's conventions.
+- The user could not see that C and D had been left out.
+
+### Step 3: reliability (current)
+
+- **Retry instead of drop.** A failed turn is nudged with "continue" after a 60 s cooldown, up to twice. A member whose model never starts replying counts as stalled after 2 minutes. A reply without the required section is asked to finish once per remaining try. A member the user resumed is waited on instead of nudged. Each member's outcome is logged.
+- **End of turn.** A completed step that ended in tool calls no longer counts as the end of a turn.
+- **Review target.** In Council mode the dialog has a target field (commit or branch). The host resolves it with `git rev-parse` before creating anything, and member worktrees start at that commit (`baseRef`, as Continue in Worktree uses).
+- **Members can verify.** Members run the normal `code` agent. A session ruleset (`council/rules.ts`) allows read-only git and `gh pr view/diff` without asking, sends chained commands (pipes, `;`, `&&`, redirects, `--output`) back to the user, and allows edits only under `.council/` in the member's worktree. Session rules are evaluated after the agent's and the last match wins, so the chaining guards come after the allows. Running tests asks the user.
+- **Conventions.** Prompts tell members to judge findings against the project's AGENTS.md, and to dispute a finding that contradicts it.
+- **Progress.** Status notes go into the chair session (`noReply` prompts, no model turn): round start and end, and each nudge. Notes never name models.
+- **No findings, no cross-examination.** If the merged list is empty, the council goes straight to the report.
+
+Not yet: PR targets, and copying uncommitted changes into member worktrees.
+
+### Step 4: decision and build
 
 The chair asks with the `question` tool: build all confirmed items, choose items, or nothing. On build, one `worktree` session implements the agreed fixes. When it's done, the council reviews that worktree with the same rounds. Open questions: single or competing builders by default; one decision for everything or per item.
 
-### Step 4: multiple rounds and progress
+### Step 5: multiple rounds and a progress view
 
-Repeat cross-examination until no answer changes and nothing new is added, up to a maximum. Show council progress in the Agent Manager: members, current round, and who is still working.
+Repeat cross-examination until no answer changes and nothing new is added, up to a maximum. Show council progress in the Agent Manager instead of chair notes.
 
-### Step 5: plan and fix modes
+### Step 6: plan and fix modes
 
 Round 1 tasks and result formats for feature planning and for bug or refactor work, chosen in the dialog.
 
-### Step 6: council view
+### Step 7: council view
 
 A findings view in the Agent Manager: each finding with every member's answer, and the decision.
 
-### Step 7: upstream
+### Step 8: upstream
 
 Changeset, docs, and a PR to `Kilo-Org/kilocode`.
 

@@ -1,6 +1,17 @@
 import { describe, expect, test } from "bun:test"
 import type { Message, Part } from "@kilocode/sdk/v2/client"
-import { cross, independent, labels, merge, report } from "../../src/agent-manager/council/prompts"
+import { match } from "@opencode-ai/core/util/wildcard"
+import {
+  answered,
+  cross,
+  independent,
+  labels,
+  listed,
+  merge,
+  report,
+  reported,
+} from "../../src/agent-manager/council/prompts"
+import { MEMBER_RULES } from "../../src/agent-manager/council/rules"
 import { finished } from "../../src/agent-manager/council/run"
 
 const assistant = (created: number, completed: number | undefined, text: string, extra: Partial<Message> = {}) => ({
@@ -62,6 +73,48 @@ describe("council prompts", () => {
     expect(merge("task", [], ["B", "C"])).toContain("Members B, C failed or did not answer")
     expect(merge("task", [], [])).not.toContain("failed or did not answer")
   })
+
+  test("names the checked-out target only when there is one", () => {
+    expect(independent("A", "review it", { name: "e48c9785c7", commit: "e48c9785c74" })).toContain(
+      "checked out at e48c9785c7 (commit e48c9785c74)",
+    )
+    expect(independent("A", "review it")).not.toContain("checked out at")
+  })
+
+  test("recognises replies in the required format", () => {
+    expect(reported("B", "notes\n### B1 [warning] a.ts:3 - bug")).toBe(true)
+    expect(reported("B", "No findings. I checked the parser.")).toBe(true)
+    expect(reported("B", "Let me look at the tests next.")).toBe(false)
+    expect(answered("F1: confirm - checked a.ts\nF2: dispute - see b.ts")).toBe(true)
+    expect(answered("**F1**: confirm - checked")).toBe(true)
+    expect(answered("I agree with most of these.")).toBe(false)
+    expect(listed("### F1 [warning] a.ts:1 - x")).toBe(true)
+    expect(listed("No findings")).toBe(false)
+  })
+})
+
+describe("council member rules", () => {
+  // Session rules come after the agent's and the last matching rule wins.
+  const decide = (permission: string, pattern: string) =>
+    MEMBER_RULES.findLast((rule) => match(permission, rule.permission) && match(pattern, rule.pattern))?.action
+
+  test("lets read-only git run and sends chained commands back to the user", () => {
+    expect(decide("bash", "git show e48c9785c7")).toBe("allow")
+    expect(decide("bash", "gh pr diff 123")).toBe("allow")
+    expect(decide("bash", "git show HEAD; rm -rf src")).toBe("ask")
+    expect(decide("bash", "git log | sh")).toBe("ask")
+    expect(decide("bash", "git diff --output=/tmp/x")).toBe("ask")
+    expect(decide("bash", "git show $(curl x)")).toBe("ask")
+  })
+
+  test("leaves other commands to the agent", () => {
+    expect(decide("bash", "bun test")).toBeUndefined()
+  })
+
+  test("allows edits only in the scratch folder", () => {
+    expect(decide("edit", "src/ripgrep.ts")).toBe("deny")
+    expect(decide("edit", ".council/fixture/test.ts")).toBe("allow")
+  })
 })
 
 describe("council finished", () => {
@@ -79,8 +132,17 @@ describe("council finished", () => {
   })
 
   test("falls back to earlier steps when the last step has no text", () => {
-    const items = [user(1_100), assistant(1_200, 1_250, "my findings"), assistant(1_300, 1_400, "")]
+    const items = [
+      user(1_100),
+      assistant(1_200, 1_250, "my findings", { finish: "tool-calls" }),
+      assistant(1_300, 1_400, "", { finish: "stop" }),
+    ]
     expect(finished(items, since)).toEqual({ text: "my findings" })
+  })
+
+  test("keeps waiting after a completed step that ended in tool calls", () => {
+    const items = [user(1_100), assistant(1_200, 1_250, "Let me check the tests.", { finish: "tool-calls" })]
+    expect(finished(items, since)).toBeUndefined()
   })
 
   test("reports a failed turn", () => {

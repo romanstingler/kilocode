@@ -546,5 +546,6 @@ export const dict = {
   "agentManager.dialog.council": "Vijeće",
   "agentManager.dialog.council.tooltip": "Modeli pregledaju nezavisno, a zatim provjeravaju nalaze jedni drugih",
   "agentManager.dialog.council.hint":
-    "Svaki član dobija worktree samo za čitanje. Model u polju za prompt predsjedava vijećem i piše izvještaj.",
+    "Svaki član radi u vlastitom worktreeju i ne može mijenjati kod koji se pregleda. Model u polju za prompt predsjedava vijećem i piše izvještaj.",
+  "agentManager.dialog.council.target": "Commit ili grana za pregled (opcionalno)",
 }

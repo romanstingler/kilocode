@@ -563,5 +563,6 @@ export const dict = {
   "agentManager.dialog.council.tooltip":
     "I modelli esaminano in modo indipendente, poi verificano a vicenda i risultati",
   "agentManager.dialog.council.hint":
-    "Ogni membro riceve un worktree di sola lettura. Il modello nella casella del prompt presiede il consiglio e scrive il rapporto.",
+    "Ogni membro lavora nel proprio worktree e non può modificare il codice in esame. Il modello nella casella del prompt presiede il consiglio e scrive il rapporto.",
+  "agentManager.dialog.council.target": "Commit o branch da esaminare (facoltativo)",
 }

@@ -1,31 +1,56 @@
 import { getErrorMessage } from "../../kilo-provider-utils"
+import { exec } from "../../util/process"
 import { PLATFORM } from "../constants"
 import type { CreatedVersion } from "../multi-version"
 import type { ProjectContext } from "../project/context"
 import type { MultiVersionHost } from "../provider-multi-version"
 import type { AgentManagerInMessage } from "../types"
-import { labels } from "./prompts"
+import { labels, type Target } from "./prompts"
+import { MEMBER_RULES } from "./rules"
 import { runCouncil, type Model } from "./run"
 
 const TITLE_MAX = 60
 
 type Request = Extract<AgentManagerInMessage, { type: "agentManager.createMultiVersion" }>
 
+/** What a request needs before its worktrees are created; `ref` is the commit they start from. */
+export interface Prepared {
+  ref?: string
+  target?: Target
+}
+
 /**
- * Check a request before any worktree is created. True for non-council
- * requests; a council problem is reported to the user.
+ * Check a request before any worktree is created and resolve its review
+ * target to a commit. Undefined means stop: the problem was reported to the
+ * user. Requests without a council pass through.
  */
-export function councilReady(host: Pick<MultiVersionHost, "error">, msg: Request): boolean {
-  if (!msg.council) return true
+export async function prepareCouncil(
+  ctx: ProjectContext,
+  host: Pick<MultiVersionHost, "error">,
+  msg: Request,
+): Promise<Prepared | undefined> {
+  if (!msg.council) return {}
   if (!msg.text?.trim()) {
     host.error("A council needs a task: describe what the members should work on.")
-    return false
+    return undefined
   }
   if ((msg.modelAllocations ?? []).reduce((sum, item) => sum + item.count, 0) < 2) {
     host.error("A council needs at least two members.")
-    return false
+    return undefined
   }
-  return true
+  const name = msg.council.target?.trim()
+  if (!name) return {}
+  const commit = await exec("git", ["rev-parse", "--verify", "--quiet", "--end-of-options", `${name}^{commit}`], {
+    cwd: ctx.root,
+  }).then(
+    (result) => result.stdout.trim(),
+    () => "",
+  )
+  if (!commit) {
+    host.error(`Council target "${name}" is not a commit or branch in this repository.`)
+    return undefined
+  }
+  return { ref: commit, target: { name, commit: commit.slice(0, 12) } }
 }
 
 /** For a council request, run the council on the created member worktrees in the background. */
@@ -35,17 +60,23 @@ export function seatCouncil(
   msg: Request,
   created: CreatedVersion[],
   models: Array<Model | undefined>,
+  prepared: Prepared,
 ) {
   const task = msg.text?.trim()
   if (!msg.council || !task || created.length === 0) return
-  void startCouncil(ctx, host, { task, created, models, chair: msg.council.chair }).catch((error: unknown) =>
-    host.error(`Council stopped: ${getErrorMessage(error)}`),
-  )
+  void startCouncil(ctx, host, {
+    task,
+    created,
+    models,
+    chair: msg.council.chair,
+    target: prepared.target,
+  }).catch((error: unknown) => host.error(`Council stopped: ${getErrorMessage(error)}`))
 }
 
 /**
  * Seat a council on freshly created member worktrees: label the worktrees,
- * open the chair as a local session, then run the council.
+ * apply the member permissions, open the chair as a local session, then run
+ * the council.
  */
 async function startCouncil(
   ctx: ProjectContext,
@@ -55,6 +86,7 @@ async function startCouncil(
     created: CreatedVersion[]
     models: Array<Model | undefined>
     chair: Model
+    target?: Target
   },
 ): Promise<void> {
   const created = [...input.created].sort((a, b) => a.versionIndex - b.versionIndex)
@@ -79,6 +111,16 @@ async function startCouncil(
   host.push()
 
   const client = host.client()
+  // Without these rules a member could change the code under review, so a failure stops the council.
+  await Promise.all(
+    members.map((member) =>
+      client.session.update(
+        { sessionID: member.session, directory: member.dir, permission: MEMBER_RULES },
+        { throwOnError: true },
+      ),
+    ),
+  )
+
   const chair = await client.session
     .create(
       {
@@ -101,9 +143,17 @@ async function startCouncil(
   host.push()
   host.sessions.register(chair)
 
-  host.log(`[council] seated ${members.map((member) => member.label).join(", ")}; chair=${chair.id}`)
+  host.log(
+    `[council] seated ${members.map((member) => member.label).join(", ")}; chair=${chair.id}` +
+      (input.target ? `; target=${input.target.name}@${input.target.commit}` : ""),
+  )
   await runCouncil(
     { client: host.client, log: host.log, error: host.error },
-    { task: input.task, members, chair: { session: chair.id, dir: ctx.root, model: input.chair } },
+    {
+      task: input.task,
+      members,
+      chair: { session: chair.id, dir: ctx.root, model: input.chair },
+      target: input.target,
+    },
   )
 }

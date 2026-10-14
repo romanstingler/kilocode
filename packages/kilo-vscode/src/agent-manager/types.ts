@@ -824,7 +824,11 @@ interface CreateMultiVersionIn {
   /** When set, reconcile each created session's sandbox override to this state. */
   sandbox?: boolean
   /** Run the allocated versions as a model council with this chair instead of sending `text` to each. */
-  council?: { chair: { providerID: string; modelID: string; variant?: string } }
+  council?: {
+    chair: { providerID: string; modelID: string; variant?: string }
+    /** Commit or branch the member worktrees start from: the code under review. */
+    target?: string
+  }
 }
 
 interface RenameWorktreeIn {
