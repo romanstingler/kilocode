@@ -543,4 +543,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "Izbriši {{count}} foldera ({{size}})",
   "agentManager.orphans.cancel": "Otkaži",
   "agentManager.error.title": "Greška Agent Managera",
+  "agentManager.dialog.council": "Vijeće",
+  "agentManager.dialog.council.tooltip": "Modeli pregledaju nezavisno, a zatim provjeravaju nalaze jedni drugih",
+  "agentManager.dialog.council.hint":
+    "Svaki član dobija worktree samo za čitanje. Model u polju za prompt predsjedava vijećem i piše izvještaj.",
 }

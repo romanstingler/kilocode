@@ -1102,6 +1102,8 @@ export interface CreateMultiVersionRequest {
   // When set, start each created worktree session with the sandbox override
   // reconciled to this state. Only sent when sandbox controls are available.
   sandbox?: boolean
+  // When set, the allocated versions run as a model council with this chair.
+  council?: { chair: ModelSelection & { variant?: string } }
 }
 
 // Persist tab order for a context (worktree ID or "local")

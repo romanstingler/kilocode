@@ -552,4 +552,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "{{count}} mappen verwijderen ({{size}})",
   "agentManager.orphans.cancel": "Annuleren",
   "agentManager.error.title": "Agent Manager-fout",
+  "agentManager.dialog.council": "Raad",
+  "agentManager.dialog.council.tooltip": "Modellen beoordelen onafhankelijk en controleren daarna elkaars bevindingen",
+  "agentManager.dialog.council.hint":
+    "Elk lid krijgt een alleen-lezen worktree. Het model in het promptvak zit de raad voor en schrijft het rapport.",
 }

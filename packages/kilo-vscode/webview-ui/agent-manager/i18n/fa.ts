@@ -545,4 +545,9 @@ export const dict = {
   "agentManager.orphans.deleteButton": "حذف {{count}} پوشه ({{size}})",
   "agentManager.orphans.cancel": "لغو",
   "agentManager.error.title": "خطای Agent Manager",
+  "agentManager.dialog.council": "شورا",
+  "agentManager.dialog.council.tooltip":
+    "مدل‌ها به‌طور مستقل بررسی می‌کنند و سپس یافته‌های یکدیگر را راستی‌آزمایی می‌کنند",
+  "agentManager.dialog.council.hint":
+    "هر عضو یک Worktree فقط‌خواندنی دریافت می‌کند. مدلِ کادر پرامپت ریاست شورا را بر عهده دارد و گزارش را می‌نویسد.",
 }

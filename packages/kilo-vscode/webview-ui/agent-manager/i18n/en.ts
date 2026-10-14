@@ -545,4 +545,8 @@ export const dict = {
   "agentManager.intro.guide": "Read the guide",
   "agentManager.intro.dismiss": "Skip introduction",
   "agentManager.intro.reopen": "How Agent Manager works",
+  "agentManager.dialog.council": "Council",
+  "agentManager.dialog.council.tooltip": "Models review independently, then cross-check each other's findings",
+  "agentManager.dialog.council.hint":
+    "Each member gets a read-only worktree. The model in the prompt box chairs the council and writes the report.",
 }

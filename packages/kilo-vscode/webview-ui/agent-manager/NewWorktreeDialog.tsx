@@ -202,6 +202,8 @@ export const NewWorktreeDialog: Component<{
   const saved = readDialogSelections(cached?.advancedDialogSelections)
   const [versions, setVersions] = createSignal<VersionCount>(1)
   const [compareMode, setCompareMode] = createSignal(false)
+  // Council mode reuses the compare picker for members; the prompt's model chip picks the chair.
+  const [councilMode, setCouncilMode] = createSignal(false)
   const initialAgent = restoreAgent(saved.agent, session.agents(), session.selectedAgent())
   const preferences = createDialogPreferences({
     saved,
@@ -442,10 +444,20 @@ export const NewWorktreeDialog: Component<{
     // In goal mode the objective replaces the prompt, so a session can only
     // start once the objective has been typed.
     if (goalMode() && !prompt().trim()) return false
+    // A council needs a task, at least two members, and a chair.
+    if (councilMode() && (!prompt().trim() || totalAllocations(modelAllocations()) < 2 || !model())) return false
     return selection.canSubmit(compareMode() ? modelAllocations() : undefined)
   }
   const total = () => (compareMode() ? totalAllocations(modelAllocations()) : versions())
-  const mode = () => (compareMode() ? "compare_models" : versions() > 1 ? "multiple_versions" : "single")
+  const mode = () =>
+    councilMode() ? "council" : compareMode() ? "compare_models" : versions() > 1 ? "multiple_versions" : "single"
+  // In council mode the prompt's model chip stays visible: it picks the chair.
+  const chairVisible = () => !compareMode() || councilMode()
+  const compareTitle = () => (councilMode() ? t("agentManager.dialog.council") : t("agentManager.dialog.compareModels"))
+  const councilRequest = () => {
+    const chair = councilMode() ? model() : null
+    return chair ? { chair: { ...chair, variant: effectiveVariant() } } : undefined
+  }
 
   /**
    * Attachments for the new sessions. Mentions are resolved here, at creation
@@ -511,6 +523,7 @@ export const NewWorktreeDialog: Component<{
       modelAllocations: allocations,
       sandbox: sandboxVisible() ? sandboxOverride() : undefined,
       files: resolveFiles(payload.text),
+      council: councilRequest(),
     })
 
     // A submitted dialog starts fresh next time: keep only the agent and sandbox restore.
@@ -1017,7 +1030,7 @@ export const NewWorktreeDialog: Component<{
                     </Show>
                   }
                   model={
-                    <Show when={!compareMode()}>
+                    <Show when={chairVisible()}>
                       <ModelSelectorBase
                         value={model()}
                         onSelect={selectModel}
@@ -1031,7 +1044,7 @@ export const NewWorktreeDialog: Component<{
                     </Show>
                   }
                   variant={
-                    <Show when={!compareMode()}>
+                    <Show when={chairVisible()}>
                       <ThinkingSelectorBase
                         variants={variants()}
                         value={effectiveVariant()}
@@ -1243,6 +1256,28 @@ export const NewWorktreeDialog: Component<{
                         <span class="am-nv-pill-compare-label">{t("agentManager.dialog.compareModels")}</span>
                       </button>
                     </Tooltip>
+                    <Tooltip
+                      value={t("agentManager.dialog.council.tooltip")}
+                      placement="top"
+                      contentClass="am-tooltip-wrap"
+                    >
+                      <button
+                        class="am-nv-pill am-nv-pill-compare"
+                        onClick={click(
+                          "council",
+                          "configure_worktree_dialog",
+                          () => {
+                            setCouncilMode(true)
+                            setCompareMode(true)
+                          },
+                          { action: "open" },
+                        )}
+                        type="button"
+                      >
+                        <Icon name="speech-bubble" size="small" />
+                        <span class="am-nv-pill-compare-label">{t("agentManager.dialog.council")}</span>
+                      </button>
+                    </Tooltip>
                   </div>
                   <Show when={versions() > 1}>
                     <span class="am-nv-version-hint">
@@ -1255,7 +1290,7 @@ export const NewWorktreeDialog: Component<{
               <div class="am-nv-compare-section">
                 <div class="am-nv-version-bar">
                   <span class="am-nv-config-label">
-                    {t("agentManager.dialog.compareModels")}
+                    {compareTitle()}
                     <Show when={totalAllocations(modelAllocations()) > 0}>
                       <span class="am-nv-compare-count">
                         {totalAllocations(modelAllocations())}/{MAX_MULTI_VERSIONS}
@@ -1265,8 +1300,9 @@ export const NewWorktreeDialog: Component<{
                   <button
                     class="am-nv-pill-back"
                     onClick={() => {
-                      track("compare_models", { action: "close" })
+                      track(councilMode() ? "council" : "compare_models", { action: "close" })
                       setCompareMode(false)
+                      setCouncilMode(false)
                       setModelAllocations(new Map())
                     }}
                     type="button"
@@ -1275,6 +1311,9 @@ export const NewWorktreeDialog: Component<{
                     <Icon name="close-small" size="small" />
                   </button>
                 </div>
+                <Show when={councilMode()}>
+                  <span class="am-nv-version-hint">{t("agentManager.dialog.council.hint")}</span>
+                </Show>
                 <DeferredPopover
                   open={compareOpen()}
                   onOpenChange={setCompareOpen}

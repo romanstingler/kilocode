@@ -526,4 +526,7 @@ export const dict = {
   "agentManager.orphans.deleteButton": "删除 {{count}} 个文件夹 ({{size}})",
   "agentManager.orphans.cancel": "取消",
   "agentManager.error.title": "Agent Manager 错误",
+  "agentManager.dialog.council": "评审会",
+  "agentManager.dialog.council.tooltip": "各模型独立评审，然后交叉核验彼此的发现",
+  "agentManager.dialog.council.hint": "每个成员获得一个只读工作树。提示框中的模型担任主席并撰写报告。",
 }

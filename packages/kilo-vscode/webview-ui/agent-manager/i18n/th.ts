@@ -535,4 +535,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "ลบ {{count}} โฟลเดอร์ ({{size}})",
   "agentManager.orphans.cancel": "ยกเลิก",
   "agentManager.error.title": "ข้อผิดพลาด Agent Manager",
+  "agentManager.dialog.council": "สภา",
+  "agentManager.dialog.council.tooltip": "โมเดลตรวจสอบอย่างอิสระ แล้วตรวจทานข้อค้นพบของกันและกัน",
+  "agentManager.dialog.council.hint":
+    "สมาชิกแต่ละคนได้รับ Worktree แบบอ่านอย่างเดียว โมเดลในช่องพรอมต์เป็นประธานสภาและเขียนรายงาน",
 }

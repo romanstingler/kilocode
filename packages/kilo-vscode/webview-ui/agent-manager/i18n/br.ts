@@ -547,4 +547,9 @@ export const dict = {
   "agentManager.orphans.deleteButton": "Excluir {{count}} pastas ({{size}})",
   "agentManager.orphans.cancel": "Cancelar",
   "agentManager.error.title": "Erro do Agent Manager",
+  "agentManager.dialog.council": "Conselho",
+  "agentManager.dialog.council.tooltip":
+    "Os modelos revisam de forma independente e depois verificam as conclusões uns dos outros",
+  "agentManager.dialog.council.hint":
+    "Cada membro recebe uma worktree somente leitura. O modelo na caixa de prompt preside o conselho e escreve o relatório.",
 }

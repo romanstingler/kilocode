@@ -10,6 +10,7 @@ import { plan } from "./creation-plan"
 import { Timing } from "./creation-timing"
 import { Semaphore } from "./semaphore"
 import type { WorktreeCreationFailure } from "./worktree-create"
+import { councilReady, seatCouncil } from "./council/start"
 
 const PROVISION_CONCURRENCY = 2
 
@@ -35,6 +36,8 @@ export async function createMultiVersion(
   msg: Extract<AgentManagerInMessage, { type: "agentManager.createMultiVersion" }>,
 ): Promise<null> {
   const text = msg.text?.trim() || undefined
+  const council = msg.council
+  if (!councilReady(host, msg)) return null
 
   const worktreeName = msg.name?.trim() || undefined
   const agent = msg.agent
@@ -89,22 +92,25 @@ export async function createMultiVersion(
   // Phase 2: Git creation is complete, so independent setup/session pipelines
   // can overlap without racing the shared worktree metadata mutation.
   const provision = async (version: PreparedVersion) => {
+    // A council sends its own prompts once every member is seated.
     const ready = await provisionVersion(ctx, host, version, (session) =>
-      sendInitialPrompt(
-        host,
-        ctx.id,
-        session,
-        models,
-        { providerID, modelID },
-        {
-          text,
-          command: msg.command,
-          arguments: msg.arguments,
-          agent,
-          variant: msg.variant,
-          files,
-        },
-      ),
+      council
+        ? undefined
+        : sendInitialPrompt(
+            host,
+            ctx.id,
+            session,
+            models,
+            { providerID, modelID },
+            {
+              text,
+              command: msg.command,
+              arguments: msg.arguments,
+              agent,
+              variant: msg.variant,
+              files,
+            },
+          ),
     )
     if (!ready) return
     created.push(ready)
@@ -138,6 +144,7 @@ export async function createMultiVersion(
   }
 
   host.log(`Multi-version creation complete: ${created.length}/${versions} versions`)
+  seatCouncil(ctx, host, msg, created, models)
   return null
 }
 

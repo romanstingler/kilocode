@@ -552,4 +552,9 @@ export const dict = {
   "agentManager.orphans.deleteButton": "{{count}} klasörü sil ({{size}})",
   "agentManager.orphans.cancel": "İptal",
   "agentManager.error.title": "Agent Manager hatası",
+  "agentManager.dialog.council": "Konsey",
+  "agentManager.dialog.council.tooltip":
+    "Modeller bağımsız olarak inceler, ardından birbirlerinin bulgularını çapraz kontrol eder",
+  "agentManager.dialog.council.hint":
+    "Her üye salt okunur bir worktree alır. İstem kutusundaki model konseye başkanlık eder ve raporu yazar.",
 }

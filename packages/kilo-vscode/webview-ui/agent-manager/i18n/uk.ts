@@ -555,4 +555,9 @@ export const dict = {
   "agentManager.orphans.deleteButton": "Видалити {{count}} тек ({{size}})",
   "agentManager.orphans.cancel": "Скасувати",
   "agentManager.error.title": "Помилка Agent Manager",
+  "agentManager.dialog.council": "Рада",
+  "agentManager.dialog.council.tooltip":
+    "Моделі перевіряють незалежно, а потім перехресно перевіряють висновки одна одної",
+  "agentManager.dialog.council.hint":
+    "Кожен учасник отримує робоче дерево лише для читання. Модель із поля введення головує в раді та пише звіт.",
 }

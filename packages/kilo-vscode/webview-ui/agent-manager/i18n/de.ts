@@ -554,4 +554,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "{{count}} Ordner löschen ({{size}})",
   "agentManager.orphans.cancel": "Abbrechen",
   "agentManager.error.title": "Agent-Manager-Fehler",
+  "agentManager.dialog.council": "Rat",
+  "agentManager.dialog.council.tooltip": "Modelle prüfen unabhängig und kontrollieren dann gegenseitig ihre Befunde",
+  "agentManager.dialog.council.hint":
+    "Jedes Mitglied erhält einen schreibgeschützten Worktree. Das Modell im Eingabefeld leitet den Rat und schreibt den Bericht.",
 }

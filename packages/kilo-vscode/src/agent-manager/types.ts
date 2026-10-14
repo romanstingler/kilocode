@@ -823,6 +823,8 @@ interface CreateMultiVersionIn {
   modelAllocations?: Array<{ providerID: string; modelID: string; count: number; variant?: string }>
   /** When set, reconcile each created session's sandbox override to this state. */
   sandbox?: boolean
+  /** Run the allocated versions as a model council with this chair instead of sending `text` to each. */
+  council?: { chair: { providerID: string; modelID: string; variant?: string } }
 }
 
 interface RenameWorktreeIn {

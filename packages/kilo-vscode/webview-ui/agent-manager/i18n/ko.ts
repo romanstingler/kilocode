@@ -538,4 +538,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "폴더 {{count}}개 삭제 ({{size}})",
   "agentManager.orphans.cancel": "취소",
   "agentManager.error.title": "Agent Manager 오류",
+  "agentManager.dialog.council": "위원회",
+  "agentManager.dialog.council.tooltip": "모델들이 독립적으로 검토한 뒤 서로의 발견 사항을 교차 검증합니다",
+  "agentManager.dialog.council.hint":
+    "각 멤버는 읽기 전용 워크트리를 받습니다. 프롬프트 상자의 모델이 위원회를 주재하고 보고서를 작성합니다.",
 }

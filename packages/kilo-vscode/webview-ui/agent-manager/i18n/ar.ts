@@ -536,4 +536,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "حذف {{count}} مجلد ({{size}})",
   "agentManager.orphans.cancel": "إلغاء",
   "agentManager.error.title": "خطأ في Agent Manager",
+  "agentManager.dialog.council": "مجلس",
+  "agentManager.dialog.council.tooltip": "تراجع النماذج بشكل مستقل، ثم تتحقق من نتائج بعضها البعض",
+  "agentManager.dialog.council.hint":
+    "يحصل كل عضو على شجرة عمل للقراءة فقط. يترأس النموذج المحدد في مربع الإدخال المجلس ويكتب التقرير.",
 }

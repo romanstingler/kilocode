@@ -547,4 +547,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "Удалить {{count}} папок ({{size}})",
   "agentManager.orphans.cancel": "Отмена",
   "agentManager.error.title": "Ошибка Agent Manager",
+  "agentManager.dialog.council": "Совет",
+  "agentManager.dialog.council.tooltip": "Модели проверяют независимо, а затем перепроверяют выводы друг друга",
+  "agentManager.dialog.council.hint":
+    "Каждый участник получает worktree только для чтения. Модель из поля ввода председательствует в совете и пишет отчёт.",
 }

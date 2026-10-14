@@ -543,4 +543,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "Slett {{count}} mapper ({{size}})",
   "agentManager.orphans.cancel": "Avbryt",
   "agentManager.error.title": "Agent Manager-feil",
+  "agentManager.dialog.council": "Råd",
+  "agentManager.dialog.council.tooltip": "Modellene gjennomgår uavhengig og kryssjekker deretter hverandres funn",
+  "agentManager.dialog.council.hint":
+    "Hvert medlem får et skrivebeskyttet worktree. Modellen i ledetekstfeltet leder rådet og skriver rapporten.",
 }

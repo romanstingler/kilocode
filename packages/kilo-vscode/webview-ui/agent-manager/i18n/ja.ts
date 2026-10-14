@@ -546,4 +546,8 @@ export const dict = {
   "agentManager.orphans.deleteButton": "{{count}} 個のフォルダーを削除 ({{size}})",
   "agentManager.orphans.cancel": "キャンセル",
   "agentManager.error.title": "Agent Manager エラー",
+  "agentManager.dialog.council": "評議会",
+  "agentManager.dialog.council.tooltip": "各モデルが独立してレビューし、その後お互いの指摘を相互検証します",
+  "agentManager.dialog.council.hint":
+    "各メンバーには読み取り専用のワークツリーが割り当てられます。プロンプト欄のモデルが議長を務め、レポートを作成します。",
 }
